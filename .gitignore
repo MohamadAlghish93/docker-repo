@@ -1,0 +1,10 @@
+# data folders of images
+/beszel_monitoring/beszel_agent_data
+/beszel_monitoring/beszel_data
+/dockge/data
+/homepage/config/logs
+/nginxproxymanager/data
+/nginxproxymanager/letsencrypt/*
+/vikunja/db
+/movie_stack/homepage/logs
+/movie_stack/data/*

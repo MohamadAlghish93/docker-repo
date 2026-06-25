@@ -1,0 +1,16 @@
+services:
+  dockge:
+    image: louislam/dockge:1
+    restart: unless-stopped
+    ports:
+      - 5001:5001
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data:/app/data
+      
+      # FIX: Use forward slashes and the /c/ prefix for Windows
+      - "/c/NVS/NVS Tools/docker/dockge/stacks:/opt/stacks"
+      
+    environment:
+      # This tells the Dockge UI where to look inside the container
+      - DOCKGE_STACKS_DIR=/opt/stacks

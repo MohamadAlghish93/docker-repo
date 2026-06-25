@@ -1,0 +1,43 @@
+services:
+  beszel:
+    image: henrygd/beszel
+    container_name: beszel
+    restart: unless-stopped
+    environment:
+      - APP_URL=http://localhost:8090
+    ports:
+      - 8090:8090
+    volumes:
+      - ./beszel_data:/beszel_data
+      
+  beszel-agent:
+    image: henrygd/beszel-agent
+    container_name: beszel-agent
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./beszel_agent_data:/var/lib/beszel-agent
+      # monitor other disks / partitions by mounting a folder in /extra-filesystems
+      # - /mnt/disk/.beszel:/extra-filesystems/sda1:ro
+    environment:
+      LISTEN: 8080
+      KEY: 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ0UXYmu3FquGA/AaM1e22vfmUbWo2d5VM0n7SRpC82O'
+      TOKEN: 139907db-cbf5-4188-925b-207b503d4dec
+      HUB_URL: http://localhost:8090      
+
+  prowler-agent:
+    image: henrygd/beszel-agent
+    container_name: prowler-agent
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./beszel_agent_data:/var/lib/beszel-agent
+      # monitor other disks / partitions by mounting a folder in /extra-filesystems
+      # - /mnt/disk/.beszel:/extra-filesystems/sda1:ro
+    environment:
+      LISTEN: 9696
+      KEY: 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ0UXYmu3FquGA/AaM1e22vfmUbWo2d5VM0n7SRpC82O'
+      TOKEN: 4d43712f-6433-4cbc-acd0-ace802a09115
+      HUB_URL: http://localhost:8090      

@@ -1,0 +1,32 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/configs/services/
+
+- Media:
+    - Radarr:
+        icon: radarr.svg
+        href: http://localhost:7878
+        description: Movie Management
+        widget:
+          type: radarr
+          url: http://radarr:7878  # Use container name for internal data
+          key: c2e265613642441aa7682e6a2b181f00 # Get this from Radarr > Settings > General
+          
+    - qBittorrent:
+            icon: qbittorrent.svg
+            href: http://localhost:8080
+            description: Torrent Downloader
+            widget:
+              type: qbittorrent
+              url: http://qbittorrent:8080
+              username: admin
+              password: 4Ljy3wbb6
+
+    - Seerr:
+            icon: overseerr.svg # Use overseerr.svg for the icon
+            href: http://localhost:5055
+            description: Media Requests
+            widget:
+              type: overseerr  # Homepage uses 'overseerr' for the seerr widget type
+              url: http://seerr:5055
+              key: MTc3NjI0MzMyMjA2NDVmZjQ2NWUxLTU4MGItNDY5Yi1hY2FmLTA2ODgwNGE3YTcwOQ== # Get this from Seerr > Settings > General              
