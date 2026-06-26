@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    environment:
+      DOMAIN: "https://localhost" # Or use your local IP
+    volumes:
+      - ./vw-data/:/data/
+    networks:
+      - vw-net
+
+
+  caddy:
+    image: caddy:2
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - vw-net
+    depends_on:
+      - vaultwarden
+
+volumes:
+  caddy_data:
+  caddy_config:
+
+networks:
+  vw-net:
+    driver: bridge

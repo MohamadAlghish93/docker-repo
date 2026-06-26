@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  vikunja:
+    image: vikunja/vikunja
+    container_name: vikunja
+    ports:
+      - "3456:3456"
+    environment:
+      VIKUNJA_SERVICE_PUBLICURL: http://localhost:3456/
+    volumes:
+      - ./files:/app/vikunja/files
+      - ./db:/db
+    restart: unless-stopped
