@@ -9,3 +9,5 @@
 /movie_stack/homepage/logs
 /movie_stack/data/*
 /vaultwarden/vw-data
+/vikunja/files
+/dockge/stacks/librespeed/librespeed-config

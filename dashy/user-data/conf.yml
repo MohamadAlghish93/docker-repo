@@ -1,0 +1,70 @@
+---
+# Page settings and frontend configuration
+pageInfo:
+  title: Home Dashboard
+  description: My Self-Hosted Services & Profiles
+  navLinks:
+    - title: GitHub
+      path: https://github.com/MohamadAlghish93
+    - title: Linkedin
+      path: https://www.linkedin.com/in/mohamad-alghish/
+
+# Global dashboard settings
+appConfig:
+  theme: midnight
+  layout: auto
+  iconSize: medium
+
+# Your services organized by categories
+sections:
+  - name: Infrastructure & Monitoring
+    icon: fas fa-server
+    items:
+      - title: Beszel
+        description: Lightweight server monitoring
+        icon: simple-icons:analytics
+        url: http://192.168.0.33:8090
+      - title: Dockge
+        description: Docker compose manager
+        icon: si:docker
+        url: http://192.168.0.33:5001
+      - title: Dockpeek
+        description: Quick docker log viewer
+        icon: fas fa-terminal
+        url: http://192.168.0.33:3420
+      - title: Smokeping
+        description: Network latency monitoring
+        icon: fas fa-chart-line
+        url: "#"
+
+  - name: Self-Hosted Services
+    icon: fas fa-cubes
+    items:
+      - title: Caddy / Vaultwarden Portal
+        description: Reverse Proxy Gateway
+        icon: si:caddy
+        url: https://192.168.0.33.sslip.io
+      - title: LibreSpeed
+        description: Self-hosted speed test
+        icon: fas fa-tachometer-alt
+        url: http://192.168.0.33:7400
+      - title: Vikunja
+        description: To-do list and task management
+        icon: si:vikunja
+        url: http://192.168.0.33:3456
+
+  - name: Personal & Professional
+    icon: fas fa-user
+    items:
+      - title: Personal Website
+        description: Main Portfolio
+        icon: fas fa-globe
+        url: https://www.alghosh.website
+      - title: GitHub Profile
+        description: Source Code & Projects
+        icon: si:github
+        url: https://github.com/MohamadAlghish93
+      - title: LinkedIn
+        description: Professional Network
+        icon: si:linkedin
+        url: https://www.linkedin.com/in/mohamad-alghish/

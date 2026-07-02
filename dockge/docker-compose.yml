@@ -9,7 +9,7 @@ services:
       - ./data:/app/data
       
       # FIX: Use forward slashes and the /c/ prefix for Windows
-      - "/c/NVS/NVS Tools/docker/dockge/stacks:/opt/stacks"
+      - ./stacks:/opt/stacks
       
     environment:
       # This tells the Dockge UI where to look inside the container

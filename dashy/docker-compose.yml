@@ -1,0 +1,13 @@
+services:
+  dashy:
+    image: lissy93/dashy:latest
+    container_name: dashy
+    # Pass your host user/group IDs if you encounter permission errors
+    # user: "1000:1000"
+    volumes:
+      - ./user-data:/app/user-data
+    ports:
+      - "8085:8080"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
