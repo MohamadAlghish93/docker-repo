@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  maltrail:
+    image: ghcr.io/stamparm/maltrail:latest
+    container_name: maltrail
+    restart: unless-stopped
+    ports:
+      - "8338:8338/tcp"  # Web UI Server
+      - "8337:8337/udp"  # Sensor data transfer
+    volumes:
+      - ./maltrail.conf:/opt/maltrail/maltrail.conf:ro
+
