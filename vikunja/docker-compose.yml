@@ -12,3 +12,9 @@ services:
       - ./files:/app/vikunja/files
       - ./db:/db
     restart: unless-stopped
+    networks:
+      - cloudflare-network
+
+networks:
+  cloudflare-network:
+    external: true

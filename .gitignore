@@ -12,3 +12,5 @@
 /vikunja/files
 /dockge/stacks/librespeed/librespeed-config
 /smokeping/data
+/camera-viewer/.env
+/cloudflare/.env
