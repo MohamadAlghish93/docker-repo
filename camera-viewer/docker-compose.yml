@@ -27,6 +27,8 @@ services:
     restart: unless-stopped
     environment:
       - HLS_PATH=/tmp/hls
+      - AUTH_USER=lola
+      - AUTH_PASS=NVS_P@ssw0rd
     volumes:
       - hls:/tmp/hls
     ports:
