@@ -15,10 +15,44 @@
         place-items: center;
         height: 100vh;
       }
+      .container {
+        display: grid;
+        gap: 12px;
+        place-items: center;
+        width: 100%;
+        max-width: 90vw;
+      }
       video {
         max-width: 100%;
-        max-height: 100%;
+        max-height: 70vh;
         display: block;
+        background: #000;
+      }
+      .controls {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      button {
+        padding: 6px 12px;
+        border-radius: 4px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      #startBtn {
+        background: #22c55e;
+        color: #000;
+      }
+      #stopBtn {
+        background: #ef4444;
+        color: #fff;
+      }
+      #status {
+        font-size: 12px;
+        opacity: 0.9;
       }
       .info {
         position: absolute;
@@ -33,34 +67,156 @@
   </head>
   <body>
     <div class="info" id="info">Loading...</div>
-    <video id="video" autoplay muted playsinline></video>
+
+    <div class="container">
+      <video id="video" autoplay muted playsinline></video>
+
+      <div class="controls">
+        <button id="startBtn">Start</button>
+        <button id="stopBtn">Stop</button>
+        <span id="status">Status: checking...</span>
+      </div>
+    </div>
 
     <script>
       const video = document.getElementById("video");
+      const startBtn = document.getElementById("startBtn");
+      const stopBtn = document.getElementById("stopBtn");
+      const statusEl = document.getElementById("status");
       const info = document.getElementById("info");
 
       const hlsUrl = "/hls/stream.m3u8";
       info.textContent = "HLS: " + hlsUrl;
 
-      if (Hls.isSupported()) {
-        const hls = new Hls({
+      let hls = null;
+
+      async function fetchStatus() {
+        try {
+          const res = await fetch("/api/status");
+          const data = await res.json();
+          statusEl.textContent = "Status: " + (data.running ? "STREAMING" : "STOPPED");
+          return data.running;
+        } catch {
+          statusEl.textContent = "Status: unknown";
+          return false;
+        }
+      }
+
+      function loadHls() {
+        if (hls) {
+          hls.destroy();
+          hls = null;
+        }
+
+        if (!Hls.isSupported()) {
+          if (video.canPlayType("application/vnd.apple.mpegurl")) {
+            video.src = hlsUrl;
+            video.play().catch(() => {});
+          } else {
+            info.textContent = "HLS not supported in this browser.";
+          }
+          return;
+        }
+
+        hls = new Hls({
           enableWorker: true,
-          lowLatencyMode: false,
-          backBufferLength: 90,
+          lowLatencyMode: true,
+          backBufferLength: 60,
+          maxBufferLength: 30,
+          maxMaxBufferLength: 60,
+          startPosition: -1,
+          liveSyncDurationCount: 3,
         });
+
         hls.loadSource(hlsUrl);
         hls.attachMedia(video);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          video.play().catch(() => {});
+        });
+
         hls.on(Hls.Events.ERROR, (event, data) => {
-          console.error("HLS error", data);
+          console.warn("HLS error:", data);
+
           if (data.fatal) {
-            hls.destroy();
+            switch (data.type) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                console.log("Network error, trying to recover...");
+                hls.startLoad();
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                console.log("Media error, trying to recover...");
+                hls.recoverMediaError();
+                break;
+              default:
+                console.log("Unrecoverable error, reloading source");
+                loadHls();
+                break;
+            }
           }
         });
-      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        video.src = hlsUrl;
-      } else {
-        info.textContent = "HLS not supported in this browser.";
       }
+
+      async function ensureStreamActive() {
+        const running = await fetchStatus();
+        if (running) {
+          loadHls();
+        } else {
+          // Don't auto-start; wait for user to click Start
+          info.textContent = "Press Start to begin streaming.";
+        }
+      }
+
+      startBtn.addEventListener("click", async () => {
+        startBtn.disabled = true;
+        stopBtn.disabled = true;
+        try {
+          const res = await fetch("/api/start", { method: "POST" });
+          const data = await res.json();
+          if (!res.ok || !data.ok) {
+            alert("Failed to start: " + (data.error || "unknown error"));
+          }
+        } catch (e) {
+          alert("Error starting stream: " + e.message);
+        } finally {
+          startBtn.disabled = false;
+          stopBtn.disabled = false;
+          await fetchStatus();
+          loadHls();
+          info.textContent = "HLS: " + hlsUrl;
+        }
+      });
+
+      stopBtn.addEventListener("click", async () => {
+        startBtn.disabled = true;
+        stopBtn.disabled = true;
+        try {
+          const res = await fetch("/api/stop", { method: "POST" });
+          const data = await res.json();
+          if (!res.ok || !data.ok) {
+            alert("Failed to stop: " + (data.error || "unknown error"));
+          }
+        } catch (e) {
+          alert("Error stopping stream: " + e.message);
+        } finally {
+          startBtn.disabled = false;
+          stopBtn.disabled = false;
+          await fetchStatus();
+          // Reload player to clear old stream
+          if (hls) {
+            hls.destroy();
+            hls = null;
+          }
+          video.src = "";
+          info.textContent = "Stream stopped. Press Start to resume.";
+        }
+      });
+
+      // Initial status check
+      ensureStreamActive();
+
+      // Periodically refresh status
+      setInterval(ensureStreamActive, 5000);
     </script>
   </body>
 </html>

@@ -68,3 +68,17 @@ sections:
         description: Professional Network
         icon: si:linkedin
         url: https://www.linkedin.com/in/mohamad-alghish/
+
+  - name: Online Services
+    icon: fas fa-globe
+    items:
+      - title: Camera Home
+        description: Self-hosted camera home - ajman
+        icon: fas fa-camera
+        url: https://cam.alghosh.website
+      - items: Personal task
+        description: online version of my task
+        icon: si:vikunja
+        url: https://task.alghosh.website
+
+

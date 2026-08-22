@@ -1,42 +1,22 @@
 version: "3.9"
 
 services:
-  ffmpeg:
-    image: jrottenberg/ffmpeg:6-alpine
-    container_name: camera-ffmpeg
-    restart: unless-stopped
-    environment:
-      - INPUT_URL=${CAMERA_RTSP_URL}
-    volumes:
-      - hls:/tmp/hls
-    networks:
-      - cloudflare-network
-    command: >
-      -re
-      -i "${CAMERA_RTSP_URL}"
-      -c:v h264 -c:a aac
-      -f hls
-      -hls_time 2
-      -hls_list_size 5
-      -hls_flags delete_segments
-      /tmp/hls/stream.m3u8
-
   camera-viewer:
     build: ./app
     container_name: camera-viewer
     restart: unless-stopped
     environment:
+      - PORT=3040
       - HLS_PATH=/tmp/hls
       - AUTH_USER=lola
       - AUTH_PASS=NVS_P@ssw0rd
+      - CAMERA_RTSP_URL=${CAMERA_RTSP_URL}
     volumes:
       - hls:/tmp/hls
     ports:
       - "3040:3040"
     networks:
       - cloudflare-network
-    depends_on:
-      - ffmpeg
 
 volumes:
   hls:
