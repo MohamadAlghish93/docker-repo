@@ -67,10 +67,8 @@
   </head>
   <body>
     <div class="info" id="info">Loading...</div>
-
     <div class="container">
       <video id="video" autoplay muted playsinline></video>
-
       <div class="controls">
         <button id="startBtn">Start</button>
         <button id="stopBtn">Stop</button>
@@ -137,7 +135,6 @@
 
         hls.on(Hls.Events.ERROR, (event, data) => {
           console.warn("HLS error:", data);
-
           if (data.fatal) {
             switch (data.type) {
               case Hls.ErrorTypes.NETWORK_ERROR:
@@ -160,9 +157,11 @@
       async function ensureStreamActive() {
         const running = await fetchStatus();
         if (running) {
-          loadHls();
+          // FIX: Only initialize the stream if it isn't already loaded
+          if (!hls && !video.src) {
+            loadHls();
+          }
         } else {
-          // Don't auto-start; wait for user to click Start
           info.textContent = "Press Start to begin streaming.";
         }
       }
@@ -170,6 +169,7 @@
       startBtn.addEventListener("click", async () => {
         startBtn.disabled = true;
         stopBtn.disabled = true;
+
         try {
           const res = await fetch("/api/start", { method: "POST" });
           const data = await res.json();
@@ -182,14 +182,20 @@
           startBtn.disabled = false;
           stopBtn.disabled = false;
           await fetchStatus();
-          loadHls();
-          info.textContent = "HLS: " + hlsUrl;
+
+          // FIX: Wait 3 seconds for FFmpeg to create the manifest before requesting it
+          info.textContent = "Starting encoder... please wait.";
+          setTimeout(() => {
+            loadHls();
+            info.textContent = "HLS: " + hlsUrl;
+          }, 3000);
         }
       });
 
       stopBtn.addEventListener("click", async () => {
         startBtn.disabled = true;
         stopBtn.disabled = true;
+
         try {
           const res = await fetch("/api/stop", { method: "POST" });
           const data = await res.json();
@@ -202,19 +208,22 @@
           startBtn.disabled = false;
           stopBtn.disabled = false;
           await fetchStatus();
+
           // Reload player to clear old stream
           if (hls) {
             hls.destroy();
             hls = null;
           }
+          
+          // Clear the video source so the ensureStreamActive loop functions correctly on restart
           video.src = "";
+          video.removeAttribute("src");
           info.textContent = "Stream stopped. Press Start to resume.";
         }
       });
 
       // Initial status check
       ensureStreamActive();
-
       // Periodically refresh status
       setInterval(ensureStreamActive, 5000);
     </script>
