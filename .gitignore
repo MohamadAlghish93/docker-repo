@@ -14,3 +14,5 @@
 /smokeping/data
 /camera-viewer/.env
 /cloudflare/.env
+/dock-back/.env
+/dock-back/key.txt
